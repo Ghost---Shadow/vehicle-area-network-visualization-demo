@@ -1,0 +1,55 @@
+-----------------------------------------------------
+- When a node is added, broadcast. 
+- Distance = min hops, direction = node which gave min hops
+- If keep alive message fails, remove
+- When a node is removed, broadcast
+------------------------------------------------------
+- Node connection failure and update
+- Ping to check if within range
+- Keep packet until timeout, if no nodes are in range
+-----------------------------------------------------
+- two.js setup
+- road network
+- relay stationary cars
+- Disable cars on the fly
+- Disable cars automatically when out of range
+------------------------------------------------------
+- gui.js
+	- main loop
+		- logic step
+		- graphics update
+	- mouse click
+	- sample scenes
+	- check boxes
+	- inspector
+- graphics.js
+	- drawBackground()
+	- drawCars(positions)
+		- draw rects at positions
+	- drawGraph(G)
+		- circles at nodes and lines at edges
+	- drawPackets(packets)
+		- larger circle as packet
+- logic.js
+	- step
+		- positions = updateCarPositions(positions)
+			- ???
+		- G = updateGraph(positions)
+			- if physical distance < radius then adjacent
+		- R = updateRoutingInformation(G,G')
+			- changes = G' - G 
+			- for each change in changes
+				- broadcastChange(R,change)
+			- G' = G
+		- packets = updatePackets(R,packets)
+			- update sleep
+			- getBestAdjacentNode(R,packet)
+			- moveToAdjacent(R,packet,newNode)
+	
+	- sendPacket(R,src,dest)	
+-------------------------------------------------------
+- Packet
+	- id, src, dest, lifeLeft, sleep
+- RoutingInformation
+	- Adjacent Nodes: [1,2,3..]
+	- Reachable from adjacent: {adjNode:{targetNode:hops}}
