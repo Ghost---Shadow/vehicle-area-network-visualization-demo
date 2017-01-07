@@ -1,8 +1,10 @@
 var roadColor = '#ccccdd';
 var carColor = '#ee4422';
+var radiusColor = '#334433'
+
 var carSize = 20;
 var shape = {};
-var carRects = [];
+var cars = [];
 
 function drawBackground(two, x, y) {
     shape.x = x;
@@ -35,18 +37,36 @@ function drawBackground(two, x, y) {
     }
 }
 
-function drawCars(two, positions) {
+function worldToScreenSpace(position) {
+    // Interpolate between current and next position
+    t = position.t;
+    x = (1 - t) * position.x * w * 2
+        + t * position.nx * w * 2 + w / 2;
+    y = (1 - t) * position.y * h * 2 +
+        t * position.ny * h * 2 + h / 2;
+
+    return { 'x': x, 'y': y };
+}
+
+function drawCars(two, positions, range) {
     // Delete excess rectangles
-    carRects.slice(0, positions.length);
+    cars.slice(0, positions.length);
 
     //  Buffer drawables
-    var cars = carRects.length;
-    for (var i = 0; i < positions.length - cars; i++) {
-        var rect = two.makeRectangle(0, 0, carSize, carSize);        
+    var carCount = cars.length;
+    for (var i = 0; i < positions.length - carCount; i++) {
+        var rect = two.makeRectangle(0, 0, carSize, carSize);
         rect.fill = carColor;
         rect.opacity = .75;
         rect.noStroke();
-        carRects.push(rect);
+
+        var circle = two.makeCircle(0, 0, range);
+        circle.noFill();
+        circle.stroke = radiusColor;
+
+        group = two.makeGroup(rect, circle);
+
+        cars.push(group);
     }
     // Width and height of canvas
     width = two.width;
@@ -57,13 +77,15 @@ function drawCars(two, positions) {
     h = height / (shape.y * 2);
 
     for (var i = 0; i < positions.length; i++) {
-        // Interpolate between current and next position
-        t = positions[i].t;
-        x = (1 - t) * positions[i].x * w * 2
-            + t * positions[i].nx * w * 2 + w / 2;
-        y = (1 - t) * positions[i].y * h * 2 +
-            t * positions[i].ny * h * 2 + h / 2;
-
-        carRects[i].translation.set(x,y);
+        pos = worldToScreenSpace(positions[i]);
+        cars[i].translation.set(pos.x, pos.y);
     }
+}
+
+function drawGraph(G){
+
+}
+
+function drawPackets(packets){
+    
 }
