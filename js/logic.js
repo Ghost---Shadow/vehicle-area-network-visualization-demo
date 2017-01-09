@@ -1,7 +1,7 @@
 var INF = 1e+10;
 
-function Packet(id, src, dest, life) {
-    return { "id": id, "src": src, "dest": dest, "life": life };
+function Packet(id, src, dest, baseDelay, life) {
+    return { "id": id, "src": src, "dest": dest, "life": life, "baseDelay": baseDelay, "delay": baseDelay, "pos": src, "lastpos": src };
 }
 
 function updateCarPositions(positions) {
@@ -75,28 +75,55 @@ function updateRoutingInformation(G) {
         }
     }
 
-    //console.log(distance);
     return R;
 }
 
-function getPath(R,packet){
+function getPath(R, packet) {
     var path = [];
-    getPathHelper(R,packet.src,packet.dest,path);
+    getPathHelper(R, packet.pos, packet.dest, path);
+    path.push(packet.dest);
     return path;
 }
 
-function getPathHelper(R,u,v,path){
-    if(R[u][v] == u){
+function getPathHelper(R, u, v, path) {
+    if (R[u][v] == u) {
         path.unshift(u);
         return;
-    } else if(R[u][v] != -1){
+    } else if (R[u][v] != -1) {
         path.unshift(R[u][v]);
-        getPathHelper(R,u,R[u][v],path);
+        getPathHelper(R, u, R[u][v], path);
     }
 }
 
 function updatePackets(R, packets) {
-    var newPackets = {};
+    var newPackets = [];
+    for (var i = 0; i < packets.length; i++) {
+        packets[i].delay--;
+        packets[i].life--;
+        // If out of life then drop packet
+        if (packets[i].life == 0)
+            continue;
+
+        if (packets[i].delay == 0) {
+            // Destination reached, consume
+            if (packets[i].dest == packets[i].pos)
+                continue;
+
+            packets[i].delay = packets[i].baseDelay;
+            var path = getPath(R, packets[i]);
+
+            // If no path then wait until death
+            if (path.length == 1) {
+                newPackets.push(packets[i]);
+                continue;
+            }
+
+            packets[i].pos = path[1];
+            packets[i].lastpos = path[0];
+        }
+        newPackets.push(packets[i]);
+    }
+
     return newPackets;
 }
 

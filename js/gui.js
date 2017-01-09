@@ -4,7 +4,7 @@ var positions = [];
 var G = null;
 var prevG = null;
 var isPaused = false;
-var delay = 50;
+var frameDelay = 50;
 
 var canvasId = 'main-canvas';
 var graphDivId = '#graph-holder';
@@ -16,7 +16,7 @@ window.onload = function () {
     two = new Two(params).appendTo(elem);
 
     drawBackground(two, 4, 4);
-    setInterval(update, delay);
+    setInterval(update, frameDelay);
 }
 
 function hasGraphChanged(G, prevG) {
