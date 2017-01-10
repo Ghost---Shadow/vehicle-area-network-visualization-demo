@@ -10,6 +10,7 @@ var cars = [];
 var packetGraphics = []
 
 function drawBackground(two, x, y) {
+    two.clear();
     shape.x = x;
     shape.y = y;
 
@@ -55,7 +56,7 @@ function drawCars(two, positions, range) {
     // Delete excess
     var excess = cars.length - positions.length;
     for(var i = 0; i < excess; i++){
-        two.remove(cars[0]);
+        two.remove(cars[cars.length-1]);
         cars.pop();
     }
 
@@ -115,7 +116,7 @@ function drawPackets(two, positions, packets) {
     // Delete excess
     var excess = packetGraphics.length - packets.length;
     for(var i = 0; i < excess; i++){
-        two.remove(packetGraphics[0]);
+        two.remove(packetGraphics[packetGraphics.length-1]);
         packetGraphics.pop();
     }
 

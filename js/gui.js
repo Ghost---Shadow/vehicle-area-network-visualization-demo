@@ -8,6 +8,7 @@ var isPaused = false;
 var frameDelay = 50;
 var packetDelay = 10;
 var packetLife = 100;
+var dimensions = { 'x': 4, 'y': 4 };
 
 var canvasId = 'main-canvas';
 var graphDivId = '#graph-holder';
@@ -18,7 +19,7 @@ window.onload = function () {
     var params = { width: 512, height: 512, type: Two.Types.svg };
     two = new Two(params).appendTo(elem);
 
-    drawBackground(two, 4, 4);
+    drawBackground(two, dimensions.x, dimensions.y);
     setInterval(update, frameDelay);
 }
 
@@ -41,28 +42,29 @@ function hasGraphChanged(G, prevG) {
 function update() {
     // Logic update
     if (!isPaused) {
+        positions = updateCarPositions(dimensions, positions);
         G = updateGraph(positions);
         //if (hasGraphChanged(G, prevG)) {
-            R = updateRoutingInformation(G);
-            packets = updatePackets(R, packets);
-            prevG = G.slice();
+        R = updateRoutingInformation(G);
+        packets = updatePackets(R, packets);
+        prevG = G.slice();
 
-            if (G != null) {
-                // UI update
-                var s = "";
-                for (var i = 0; i < G.length; i++) {
-                    s += G[i] + "<br />";
-                }
-                $(graphDivId).html(s);
+        if (G != null) {
+            // UI update
+            var s = "";
+            for (var i = 0; i < G.length; i++) {
+                s += G[i] + "<br />";
             }
-            if (R != null) {
-                var s = "";
-                for (var i = 0; i < G.length; i++) {
-                    s += R[i] + "<br />";
-                }
-                $(routesDivId).html(s);
+            $(graphDivId).html(s);
+        }
+        if (R != null) {
+            var s = "";
+            for (var i = 0; i < G.length; i++) {
+                s += R[i] + "<br />";
             }
-       //}
+            $(routesDivId).html(s);
+        }
+        //}
     }
 
     // Graphics Update
@@ -76,18 +78,41 @@ function addPacket(src, dest) {
 }
 
 function reset() {
-    console.log("reset");
+    var two = null;
+    var range = 50;
+    var positions = [];
+    var packets = [];
+    var G = null;
+    var prevG = null;
+    var isPaused = false;
+    var frameDelay = 50;
+    var packetDelay = 10;
+    var packetLife = 100;
+    var dimensions = { 'x': 4, 'y': 4 };
 }
 
 function loadScene(name) {
     console.log("Loading " + name);
     switch (name) {
-        case "static":
-            positions = [{ 'x': 0, 'y': 0, 'nx': 0, 'ny': 1, 't': 0 },
-            { 'x': 0, 'y': 1, 'nx': 1, 'ny': 1, 't': 0.75 },
-            { 'x': 1, 'y': 1, 'nx': 1, 'ny': 0, 't': 0 },
-            { 'x': 1, 'y': 0, 'nx': 0, 'ny': 0, 't': 0.5 }
+        case "static":        
+            dimensions = { 'x': 2, 'y': 2 };
+            positions = [{ 'x': 0, 'y': 0, 'nx': 0, 'ny': 1, 't': 0, 'speed': 0 },
+            { 'x': 0, 'y': 1, 'nx': 1, 'ny': 1, 't': 0.75, 'speed': 0 },
+            { 'x': 1, 'y': 1, 'nx': 1, 'ny': 0, 't': 0, 'speed': 0 },
+            { 'x': 1, 'y': 0, 'nx': 0, 'ny': 0, 't': 0.5, 'speed': 0 }
             ];
+            drawBackground(two, dimensions.x, dimensions.y);
+            break;
+        case "ten_cars":        
+            dimensions = { 'x': 2, 'y': 2 };
+            positions = [];
+            for(var i = 0; i < 10; i++){
+                x = Math.round((dimensions.x-1)*Math.random());
+                y = Math.round((dimensions.y-1)*Math.random());
+                position = { 'x': x, 'y': y, 'nx': x, 'ny': y, 't': 1, 'speed': 0.01 };
+                positions.push(position);
+            }
+            drawBackground(two, dimensions.x, dimensions.y);
             break;
     }
 }

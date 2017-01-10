@@ -1,10 +1,28 @@
 var INF = 1e+10;
+var speed = .01;
 
 function Packet(id, src, dest, baseDelay, life) {
     return { "id": id, "src": src, "dest": dest, "life": life, "baseDelay": baseDelay, "delay": baseDelay, "pos": src, "lastpos": src };
 }
 
-function updateCarPositions(positions) {
+function updateCarPositions(dimensions,positions) {
+    for(var i = 0; i < positions.length; i++){
+        if(positions[i].speed != null)
+            speed = positions[i].speed;
+        positions[i].t += speed;
+        if(positions[i].t >= 1){
+            positions[i].x = positions[i].nx;
+            positions[i].y = positions[i].ny;
+            positions[i].t = 0;
+            if(Math.random() > .5){
+                positions[i].nx += 1;
+                positions[i].nx %= dimensions.x;
+            } else {
+                positions[i].ny += 1;
+                positions[i].ny %= dimensions.y;
+            }
+        }
+    }
     return positions;
 }
 
