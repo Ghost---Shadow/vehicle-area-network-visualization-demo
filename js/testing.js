@@ -2,6 +2,7 @@ function test() {
     updateRoutingInformationTest();
     getPathTest();
     updatePacketsTest();
+    getPacketPositionTest();
     console.log("All tests done");
 }
 function assert(condition, message) {
@@ -118,4 +119,25 @@ function updatePacketsTest() {
 
     packets = updatePackets(R, packets);
     assert(packets.length == 0, "Failed updatePacketsTest 6");*/
+}
+
+function getPacketPositionTest(){
+    var position1 = {'x':0,'y':0,'nx':1,'ny':0,'t':0};
+    var position2 = {'x':1,'y':0,'nx':1,'ny':1,'t':0};
+    var positions = [position1,position2];
+    var packet = new Packet(0,0,1,100,100);
+    packet.lastPos = 0;
+    packet.pos = 1;
+
+    packet.delay = 10;
+    var position = getPacketPosition(positions,packet);
+    //console.log(position);
+
+    packet.delay = 5;
+    var position = getPacketPosition(positions,packet);
+    //console.log(position);
+
+    packet.delay = 0;
+    var position = getPacketPosition(positions,packet);
+    //console.log(position);
 }

@@ -1,10 +1,13 @@
 var roadColor = '#ccccdd';
 var carColor = '#ee4422';
 var radiusColor = '#334433'
+var packetColor = '#770077';
 
 var carSize = 20;
+var packetSize = 10;
 var shape = {};
 var cars = [];
+var packetGraphics = []
 
 function drawBackground(two, x, y) {
     shape.x = x;
@@ -49,8 +52,12 @@ function worldToScreenSpace(position) {
 }
 
 function drawCars(two, positions, range) {
-    // Delete excess rectangles
-    cars.slice(0, positions.length);
+    // Delete excess
+    var excess = cars.length - positions.length;
+    for(var i = 0; i < excess; i++){
+        two.remove(cars[0]);
+        cars.pop();
+    }
 
     //  Buffer drawables
     var carCount = cars.length;
@@ -82,10 +89,50 @@ function drawCars(two, positions, range) {
     }
 }
 
-function drawGraph(G){
+function drawGraph(two, G) {
 
 }
 
-function drawPackets(packets){
-    
+function getPacketPosition(positions, packet) {
+    if(packet.lastPos == null)
+        packet.lastPos = packet.pos;
+    var position = positions[packet.lastPos];
+    var newPosition = positions[packet.pos];
+
+    var pos1 = worldToScreenSpace(position);
+    var pos2 = worldToScreenSpace(newPosition);
+
+    // Interpolate between the screen positions of
+    // the two routers
+    var t = 1.0 - (packet.delay / packet.baseDelay);
+    var x = (1.0 - t) * pos1.x + t * pos2.x;
+    var y = (1.0 - t) * pos1.y + t * pos2.y;
+
+    return { 'x': x, 'y': y };
+}
+
+function drawPackets(two, positions, packets) {
+    // Delete excess
+    var excess = packetGraphics.length - packets.length;
+    for(var i = 0; i < excess; i++){
+        two.remove(packetGraphics[0]);
+        packetGraphics.pop();
+    }
+
+    //  Buffer drawables
+    var needed = packets.length - packetGraphics.length;
+    for (var i = 0; i < needed; i++) {
+        var newPacket = two.makeCircle(0, 0, packetSize);
+        newPacket.noStroke();
+        newPacket.fill = packetColor;
+        newPacket.opacity = .75;
+
+        packetGraphics.push(newPacket);
+    }
+
+    // Reposition all packets
+    for (var i = 0; i < packets.length; i++) {
+        var packetPosition = getPacketPosition(positions, packets[i]);
+        packetGraphics[i].translation.set(packetPosition.x, packetPosition.y);
+    }
 }

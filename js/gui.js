@@ -1,10 +1,13 @@
 var two = null;
 var range = 50;
 var positions = [];
+var packets = [];
 var G = null;
 var prevG = null;
 var isPaused = false;
 var frameDelay = 50;
+var packetDelay = 10;
+var packetLife = 100;
 
 var canvasId = 'main-canvas';
 var graphDivId = '#graph-holder';
@@ -24,7 +27,7 @@ function hasGraphChanged(G, prevG) {
         return false;
     if (prevG == null)
         return true;
-    if(prevG.length == 0)
+    if (prevG.length == 0)
         return true;
     for (var i = 0; i < G.length; i++) {
         for (var j = 0; j < G.length; j++) {
@@ -39,8 +42,9 @@ function update() {
     // Logic update
     if (!isPaused) {
         G = updateGraph(positions);
-        if (hasGraphChanged(G, prevG)) {
+        //if (hasGraphChanged(G, prevG)) {
             R = updateRoutingInformation(G);
+            packets = updatePackets(R, packets);
             prevG = G.slice();
 
             if (G != null) {
@@ -58,12 +62,17 @@ function update() {
                 }
                 $(routesDivId).html(s);
             }
-        }
+       //}
     }
 
     // Graphics Update
     drawCars(two, positions, range);
+    drawPackets(two, positions, packets);
     two.update();
+}
+
+function addPacket(src, dest) {
+    packets.push(new Packet(packets.length, src, dest, packetDelay, packetLife));
 }
 
 function reset() {

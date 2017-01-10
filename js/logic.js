@@ -107,7 +107,7 @@ function updatePackets(R, packets) {
         if (packets[i].delay == 0) {
             // Destination reached, consume
             if (packets[i].dest == packets[i].pos)
-                continue;
+                continue;            
 
             packets[i].delay = packets[i].baseDelay;
             var path = getPath(R, packets[i]);
@@ -123,7 +123,6 @@ function updatePackets(R, packets) {
         }
         newPackets.push(packets[i]);
     }
-
     return newPackets;
 }
 
