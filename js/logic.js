@@ -134,10 +134,10 @@ function updatePackets(R, packets) {
             if (path.length == 1) {
                 newPackets.push(packets[i]);
                 continue;
-            }
-
+            }            
             packets[i].pos = path[1];
-            packets[i].lastpos = path[0];
+            packets[i].lastPos = path[0];
+            //console.log(packets[i]);
         }
         newPackets.push(packets[i]);
     }

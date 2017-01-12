@@ -7,8 +7,33 @@ var carSize = 20;
 var packetSize = 10;
 var shape = {};
 var cars = [];
+var ranges = [];
 var packetGraphics = []
 var lines = [];
+var clicks = [];
+
+function resetGraphics(two, dimensions) {
+    two.clear();    
+    carSize = 20;
+    packetSize = 10;
+    shape = {};
+    cars = [];
+    ranges = [];
+    packetGraphics = []
+    lines = [];
+    clicks = [];
+    drawBackground(two, dimensions.x, dimensions.y);
+}
+
+function clickCar(param) {
+    var id = param.currentTarget.id;
+    var index = parseInt(id.charAt(id.length - 1));
+    console.log(index);
+    if (clicks.length == 2)
+        clicks = [index];
+    else
+        clicks.push(index);
+}
 
 function drawBackground(two, x, y) {
     two.clear();
@@ -55,6 +80,11 @@ function worldToScreenSpace(position) {
 
 function drawCars(two, positions, range) {
     // Delete excess
+    var excess = ranges.length - positions.length;
+    for (var i = 0; i < excess; i++) {
+        two.remove(ranges[ranges.length - 1]);
+        ranges.pop();
+    }
     var excess = cars.length - positions.length;
     for (var i = 0; i < excess; i++) {
         two.remove(cars[cars.length - 1]);
@@ -64,18 +94,22 @@ function drawCars(two, positions, range) {
     //  Buffer drawables
     var carCount = cars.length;
     for (var i = 0; i < positions.length - carCount; i++) {
+        var circle = two.makeCircle(0, 0, range);
+        circle.noFill();
+        circle.stroke = radiusColor;
+        ranges.push(circle);
+    }
+
+    for (var i = 0; i < positions.length - carCount; i++) {
         var rect = two.makeRectangle(0, 0, carSize, carSize);
         rect.fill = carColor;
         rect.opacity = .75;
         rect.noStroke();
 
-        var circle = two.makeCircle(0, 0, range);
-        circle.noFill();
-        circle.stroke = radiusColor;
-
-        group = two.makeGroup(rect, circle);
-
-        cars.push(group);
+        rect.id = "cars" + cars.length;
+        two.update();
+        $(rect._renderer.elem).click(clickCar);
+        cars.push(rect);
     }
     // Width and height of canvas
     width = two.width;
@@ -88,10 +122,13 @@ function drawCars(two, positions, range) {
     for (var i = 0; i < positions.length; i++) {
         pos = worldToScreenSpace(positions[i]);
         cars[i].translation.set(pos.x, pos.y);
+        ranges[i].translation.set(pos.x, pos.y);
     }
 }
 
 function drawGraph(two, positions, G) {
+    if (positions.length == 0)
+        return;
     //console.log("Here");
     for (var i = 0; i < lines.length; i++)
         two.remove(lines[i]);
@@ -109,6 +146,9 @@ function drawGraph(two, positions, G) {
 }
 
 function getPacketPosition(positions, packet) {
+    if (positions.length == 0)
+        return { 'x': -1, 'y': -1 };
+
     if (packet.lastPos == null)
         packet.lastPos = packet.pos;
     var position = positions[packet.lastPos];
@@ -127,6 +167,8 @@ function getPacketPosition(positions, packet) {
 }
 
 function drawPackets(two, positions, packets) {
+    if (positions.length == 0)
+        return;
     // Delete excess
     var excess = packetGraphics.length - packets.length;
     for (var i = 0; i < excess; i++) {
