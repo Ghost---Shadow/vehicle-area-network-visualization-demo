@@ -8,6 +8,7 @@ var packetSize = 10;
 var shape = {};
 var cars = [];
 var packetGraphics = []
+var lines = [];
 
 function drawBackground(two, x, y) {
     two.clear();
@@ -55,8 +56,8 @@ function worldToScreenSpace(position) {
 function drawCars(two, positions, range) {
     // Delete excess
     var excess = cars.length - positions.length;
-    for(var i = 0; i < excess; i++){
-        two.remove(cars[cars.length-1]);
+    for (var i = 0; i < excess; i++) {
+        two.remove(cars[cars.length - 1]);
         cars.pop();
     }
 
@@ -90,12 +91,25 @@ function drawCars(two, positions, range) {
     }
 }
 
-function drawGraph(two, G) {
-
+function drawGraph(two, positions, G) {
+    //console.log("Here");
+    for (var i = 0; i < lines.length; i++)
+        two.remove(lines[i]);
+    lines = [];
+    for (var i = 0; i < G.length; i++) {
+        for (var j = 0; j < i; j++) {
+            if (G[i][j] == 1) {
+                var pos1 = worldToScreenSpace(positions[i]);
+                var pos2 = worldToScreenSpace(positions[j]);
+                line = two.makeLine(pos1.x, pos1.y, pos2.x, pos2.y);
+                lines.push(line);
+            }
+        }
+    }
 }
 
 function getPacketPosition(positions, packet) {
-    if(packet.lastPos == null)
+    if (packet.lastPos == null)
         packet.lastPos = packet.pos;
     var position = positions[packet.lastPos];
     var newPosition = positions[packet.pos];
@@ -115,8 +129,8 @@ function getPacketPosition(positions, packet) {
 function drawPackets(two, positions, packets) {
     // Delete excess
     var excess = packetGraphics.length - packets.length;
-    for(var i = 0; i < excess; i++){
-        two.remove(packetGraphics[packetGraphics.length-1]);
+    for (var i = 0; i < excess; i++) {
+        two.remove(packetGraphics[packetGraphics.length - 1]);
         packetGraphics.pop();
     }
 

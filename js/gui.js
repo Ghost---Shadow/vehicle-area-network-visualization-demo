@@ -1,5 +1,5 @@
 var two = null;
-var range = 50;
+var range = 100;
 var positions = [];
 var packets = [];
 var G = null;
@@ -44,30 +44,31 @@ function update() {
     if (!isPaused) {
         positions = updateCarPositions(dimensions, positions);
         G = updateGraph(positions);
-        //if (hasGraphChanged(G, prevG)) {
-        R = updateRoutingInformation(G);
-        packets = updatePackets(R, packets);
-        prevG = G.slice();
+        if (hasGraphChanged(G, prevG)) {
+            R = updateRoutingInformation(G);
+            packets = updatePackets(R, packets);
+            prevG = G.slice();
 
-        if (G != null) {
-            // UI update
-            var s = "";
-            for (var i = 0; i < G.length; i++) {
-                s += G[i] + "<br />";
+            if (G != null) {
+                // UI update
+                var s = "";
+                for (var i = 0; i < G.length; i++) {
+                    s += G[i] + "<br />";
+                }
+                $(graphDivId).html(s);
             }
-            $(graphDivId).html(s);
-        }
-        if (R != null) {
-            var s = "";
-            for (var i = 0; i < G.length; i++) {
-                s += R[i] + "<br />";
+            if (R != null) {
+                var s = "";
+                for (var i = 0; i < G.length; i++) {
+                    s += R[i] + "<br />";
+                }
+                $(routesDivId).html(s);
             }
-            $(routesDivId).html(s);
         }
-        //}
     }
 
     // Graphics Update
+    drawGraph(two, positions, G);
     drawCars(two, positions, range);
     drawPackets(two, positions, packets);
     two.update();
@@ -94,7 +95,7 @@ function reset() {
 function loadScene(name) {
     console.log("Loading " + name);
     switch (name) {
-        case "static":        
+        case "static":
             dimensions = { 'x': 2, 'y': 2 };
             positions = [{ 'x': 0, 'y': 0, 'nx': 0, 'ny': 1, 't': 0, 'speed': 0 },
             { 'x': 0, 'y': 1, 'nx': 1, 'ny': 1, 't': 0.75, 'speed': 0 },
@@ -103,12 +104,12 @@ function loadScene(name) {
             ];
             drawBackground(two, dimensions.x, dimensions.y);
             break;
-        case "ten_cars":        
-            dimensions = { 'x': 2, 'y': 2 };
+        case "ten_cars":
+            dimensions = { 'x': 3, 'y': 3 };
             positions = [];
-            for(var i = 0; i < 10; i++){
-                x = Math.round((dimensions.x-1)*Math.random());
-                y = Math.round((dimensions.y-1)*Math.random());
+            for (var i = 0; i < 10; i++) {
+                x = Math.round((dimensions.x - 1) * Math.random());
+                y = Math.round((dimensions.y - 1) * Math.random());
                 position = { 'x': x, 'y': y, 'nx': x, 'ny': y, 't': 1, 'speed': 0.01 };
                 positions.push(position);
             }
