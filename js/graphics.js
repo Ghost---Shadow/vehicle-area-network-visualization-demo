@@ -13,7 +13,7 @@ var lines = [];
 var clicks = [];
 
 function resetGraphics(two, dimensions) {
-    two.clear();    
+    two.clear();
     carSize = 20;
     packetSize = 10;
     shape = {};
@@ -81,14 +81,14 @@ function worldToScreenSpace(position) {
 function drawCars(two, positions, range) {
     // Delete excess
     var excess = ranges.length - positions.length;
-    for (var i = 0; i < excess; i++) {
-        two.remove(ranges[ranges.length - 1]);
-        ranges.pop();
-    }
+    for (var i = 0; i < excess; i++)
+        two.remove(ranges.pop());
+
     var excess = cars.length - positions.length;
     for (var i = 0; i < excess; i++) {
-        two.remove(cars[cars.length - 1]);
-        cars.pop();
+        var toDelete = cars.pop();
+        two.remove(toDelete);
+        $(toDelete._renderer.elem).remove();
     }
 
     //  Buffer drawables
@@ -127,12 +127,11 @@ function drawCars(two, positions, range) {
 }
 
 function drawGraph(two, positions, G) {
-    if (positions.length == 0)
-        return;
-    //console.log("Here");
     for (var i = 0; i < lines.length; i++)
         two.remove(lines[i]);
     lines = [];
+    if (positions.length == 0)
+        return;
     for (var i = 0; i < G.length; i++) {
         for (var j = 0; j < i; j++) {
             if (G[i][j] == 1) {

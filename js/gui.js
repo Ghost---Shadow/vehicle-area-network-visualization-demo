@@ -16,7 +16,6 @@ function reset() {
     packets = [];
     G = null;
     prevG = null;
-    isPaused = false;
     frameDelay = 50;
     packetDelay = 10;
     packetLife = 100;
@@ -79,6 +78,12 @@ function update() {
             $(routesDivId).html(s);
         }
         //}
+
+        // Graphics Update
+        drawGraph(two, positions, G);
+        drawCars(two, positions, range);
+        drawPackets(two, positions, packets);
+        two.update();
     }
 
     // Instantiate a new packet
@@ -87,11 +92,6 @@ function update() {
         clicks = [];
     }
 
-    // Graphics Update
-    drawGraph(two, positions, G);
-    drawCars(two, positions, range);
-    drawPackets(two, positions, packets);
-    two.update();
 }
 
 function addPacket(src, dest) {
@@ -100,9 +100,13 @@ function addPacket(src, dest) {
 
 function loadScene(name) {
     console.log("Loading " + name);
+    reset();
+    drawGraph(two, positions, G);
+    drawCars(two, positions, range);
+    drawPackets(two, positions, packets);
     switch (name) {
         case "static":
-            reset();
+            isPaused = true;
             dimensions = { 'x': 2, 'y': 2 };
             positions = [{ 'x': 0, 'y': 0, 'nx': 0, 'ny': 1, 't': 0, 'speed': 0 },
             { 'x': 0, 'y': 1, 'nx': 1, 'ny': 1, 't': 0.75, 'speed': 0 },
@@ -111,9 +115,10 @@ function loadScene(name) {
             { 'x': 1, 'y': 0, 'nx': 0, 'ny': 0, 't': 0.5, 'speed': 0 }
             ];
             resetGraphics(two, dimensions);
+            isPaused = false;
             break;
         case "ten_cars":
-            reset();
+            isPaused = true;
             dimensions = { 'x': 3, 'y': 3 };
             positions = [];
             for (var i = 0; i < 10; i++) {
@@ -123,6 +128,11 @@ function loadScene(name) {
                 positions.push(position);
             }
             resetGraphics(two, dimensions);
+            isPaused = false;
             break;
     }
+}
+
+function togglePause() {
+    isPaused = !isPaused;
 }
