@@ -9,6 +9,8 @@ var frameDelay = 50;
 var packetDelay = 10;
 var packetLife = 100;
 var dimensions = { 'x': 4, 'y': 4 };
+var addCarMode = false;
+var removeCarMode = false;
 
 function reset() {
     range = 200;
@@ -26,11 +28,31 @@ var canvasId = 'main-canvas';
 var graphDivId = '#graph-holder';
 var routesDivId = '#routes-holder';
 
+function getMousePos(canvas, evt) {
+    var rect = canvas.getBoundingClientRect();
+    return {
+        x: evt.clientX - rect.left,
+        y: evt.clientY - rect.top
+    };
+}
+
 window.onload = function () {
     reset();
     var elem = document.getElementById(canvasId);
     var params = { width: 512, height: 512, type: Two.Types.svg };
     two = new Two(params).appendTo(elem);
+
+    elem.addEventListener('mouseup', function (evt) {
+        var mousePos = getMousePos(elem, evt);
+        //console.log('Mouse position: ' + mousePos.x + ',' + mousePos.y);
+        if (addCarMode) {
+            x = parseInt(mousePos.x * dimensions.x / width);
+            y = parseInt(mousePos.y * dimensions.y / height);
+            //console.log(x+" "+y);
+
+            addCar(x, y);
+        }
+    }, false);
 
     drawBackground(two, dimensions.x, dimensions.y);
     setInterval(update, frameDelay);
@@ -86,16 +108,32 @@ function update() {
         two.update();
     }
 
-    // Instantiate a new packet
-    if (clicks.length == 2) {
-        addPacket(clicks[0], clicks[1]);
-        clicks = [];
+    if (removeCarMode) {
+        if (clicks.length >= 1) {
+            removeCar(clicks[0]);
+            clicks = [];
+        }
+    } else {
+        // Instantiate a new packet
+        if (clicks.length == 2) {
+            addPacket(clicks[0], clicks[1]);
+            clicks = [];
+        }
     }
-
 }
 
 function addPacket(src, dest) {
     packets.push(new Packet(packets.length, src, dest, packetDelay, packetLife));
+}
+
+function addCar(x, y) {
+    positions.push({ 'wp': [[x, y]], 'p': 0, 't': 0, 'speed': .01 });
+}
+
+function removeCar(index) {
+    isPaused = true;
+    positions.splice(index, 1);
+    isPaused = false;
 }
 
 function save() {
@@ -198,4 +236,12 @@ function loadScene(name) {
 
 function togglePause() {
     isPaused = !isPaused;
+}
+
+function toggleAddCarMode() {
+    addCarMode = !addCarMode;
+}
+
+function toggleRemoveCarMode() {
+    removeCarMode = !removeCarMode;
 }

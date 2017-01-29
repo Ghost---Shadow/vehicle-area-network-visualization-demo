@@ -47,7 +47,7 @@ function drawBackground(two, x, y) {
     // Width and height of each road
     w = width / (x * 2);
     h = height / (y * 2);
-    /*
+    
     // Vertical Roads
     for (var i = 0; i < x; i++) {
         var rect = two.makeRectangle(i * h * 2 + h / 2,
@@ -64,7 +64,7 @@ function drawBackground(two, x, y) {
         rect.fill = roadColor;
         rect.opacity = 1.0;
         rect.noStroke();
-    }*/
+    }
 }
 
 function worldToScreenSpace(position) {
