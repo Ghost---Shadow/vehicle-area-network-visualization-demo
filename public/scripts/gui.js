@@ -98,6 +98,25 @@ function addPacket(src, dest) {
     packets.push(new Packet(packets.length, src, dest, packetDelay, packetLife));
 }
 
+function save() {
+    var checkpoint = {
+        name: "Dummy Name",
+        cars: positions,
+        packets: packets,
+        dimensions: dimensions
+    };
+    $.ajax
+        ({
+            type: "POST",
+            url: "http://127.0.0.1/save",
+            crossDomain: true,
+            dataType: "json",
+            data: checkpoint
+        }).done(function (data) {
+            console.log("ajax callback response:" + data);
+        });
+}
+
 function loadScene(name) {
     console.log("Loading " + name);
     reset();
