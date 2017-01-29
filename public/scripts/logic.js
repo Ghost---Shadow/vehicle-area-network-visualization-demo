@@ -2,19 +2,19 @@ var INF = 1e+10;
 var speed = .01;
 
 function Packet(id, src, dest, baseDelay, life) {
-    return { "id": id, "src": src, "dest": dest, "life": life, "baseDelay": baseDelay, "delay": baseDelay, "pos": src, "lastpos": src };
+    return { "id": id, "src": src, "dest": dest, "life": life, "baseDelay": baseDelay, "delay": baseDelay, "pos": src, "lastPos": src };
 }
 
-function updateCarPositions(dimensions,positions) {
-    for(var i = 0; i < positions.length; i++){
-        if(positions[i].speed != null)
+function updateCarPositions(dimensions, positions) {
+    for (var i = 0; i < positions.length; i++) {
+        if (positions[i].speed != null)
             speed = positions[i].speed;
         positions[i].t += speed;
-        var p = positions[i].p;        
-        if(positions[i].t >= 1){
+        var p = positions[i].p;
+        if (positions[i].t >= 1) {
             positions[i].t = 0;
-            var np = (p+1)%positions[i].wp.length;
-            positions[i].p = np;            
+            var np = (p + 1) % positions[i].wp.length;
+            positions[i].p = np;
         }
     }
     return positions;
@@ -93,7 +93,10 @@ function updateRoutingInformation(G) {
 function getPath(R, packet) {
     var path = [];
     getPathHelper(R, packet.pos, packet.dest, path);
-    path.push(packet.dest);
+    if (path.length != 0)
+        path.push(packet.dest);
+    else
+        path.push(packet.lastPos);
     return path;
 }
 
@@ -119,7 +122,7 @@ function updatePackets(R, packets) {
         if (packets[i].delay == 0) {
             // Destination reached, consume
             if (packets[i].dest == packets[i].pos)
-                continue;            
+                continue;
 
             packets[i].delay = packets[i].baseDelay;
             var path = getPath(R, packets[i]);
@@ -128,7 +131,7 @@ function updatePackets(R, packets) {
             if (path.length == 1) {
                 newPackets.push(packets[i]);
                 continue;
-            }            
+            }
             packets[i].pos = path[1];
             packets[i].lastPos = path[0];
             //console.log(packets[i]);

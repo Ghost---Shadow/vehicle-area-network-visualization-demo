@@ -25,6 +25,11 @@ function reset() {
     packetDelay = 10;
     packetLife = 100;
     dimensions = { 'x': 4, 'y': 4 };
+    addCarMode = false;
+    removeCarMode = false;
+    addWaypointMode = false;
+    removeWaypointMode = false;
+    selectedCar = -1;
 }
 
 var canvasId = 'main-canvas';
@@ -133,7 +138,7 @@ function update() {
             addPacket(clicks[0], clicks[1]);
             clicks = [];
         }
-    } 
+    }
 }
 
 function addPacket(src, dest) {
@@ -141,7 +146,7 @@ function addPacket(src, dest) {
 }
 
 function addCar(x, y) {
-    positions.push({ 'wp': [[x, y]], 'p': 0, 't': 0, 'speed': .05 });
+    positions.push({ 'wp': [[x, y]], 'p': 0, 't': 0, 'speed': .02 });
 }
 
 function addWaypoint(x, y) {
@@ -151,7 +156,7 @@ function addWaypoint(x, y) {
 
 function removeWaypoint() {
     if (selectedCar != -1)
-        positions[selectedCar].wp = [[0,0]];
+        positions[selectedCar].wp = [[0, 0]];
 }
 
 function removeCar(index) {
@@ -179,7 +184,7 @@ function save() {
                 dataType: "json",
                 data: checkpoint
             }).done(function (data) {
-                console.log("ajax callback response:" + data);
+                //console.log("Saved");
             });
     }
 }

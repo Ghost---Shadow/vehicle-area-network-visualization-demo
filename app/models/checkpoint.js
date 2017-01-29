@@ -19,7 +19,7 @@ var checkpointSchema = mongoose.Schema({
             "baseDelay": Number,
             "delay": Number,
             "pos": Number,
-            "lastpos": Number
+            "lastPos": Number
         }
     ],
     dimensions: { 'x': Number, 'y': Number }

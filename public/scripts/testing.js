@@ -122,8 +122,8 @@ function updatePacketsTest() {
 }
 
 function getPacketPositionTest(){
-    var position1 = {'x':0,'y':0,'nx':1,'ny':0,'t':0};
-    var position2 = {'x':1,'y':0,'nx':1,'ny':1,'t':0};
+    var position1 = { 'wp': [[0, 0]], 'p': 0, 't': 0, 'speed': .00 };
+    var position2 = { 'wp': [[1, 0]], 'p': 0, 't': 0, 'speed': .00 };
     var positions = [position1,position2];
     var packet = new Packet(0,0,1,100,100);
     packet.lastPos = 0;
