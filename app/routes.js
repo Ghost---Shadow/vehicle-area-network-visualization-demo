@@ -27,9 +27,13 @@ module.exports = function (app, passport) {
 
 	app.post('/save', isLoggedIn, function (req, res) {
 		var obj = req.body;
+		console.log(obj);
 		var query = { 'name': obj.name };
 		Checkpoint.findOneAndUpdate(query, obj, { upsert: true }, function (err, doc) {
-			if (err) return res.send(500, { error: err });
+			if (err) {
+				console.log(err);
+				return res.send(500, { error: err });
+			}
 			return res.send(200);
 		});
 	});

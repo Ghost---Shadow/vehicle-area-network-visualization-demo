@@ -47,7 +47,7 @@ function drawBackground(two, x, y) {
     // Width and height of each road
     w = width / (x * 2);
     h = height / (y * 2);
-
+    /*
     // Vertical Roads
     for (var i = 0; i < x; i++) {
         var rect = two.makeRectangle(i * h * 2 + h / 2,
@@ -64,18 +64,25 @@ function drawBackground(two, x, y) {
         rect.fill = roadColor;
         rect.opacity = 1.0;
         rect.noStroke();
-    }
+    }*/
 }
 
 function worldToScreenSpace(position) {
     // Interpolate between current and next position
-    t = position.t;
-    x = (1 - t) * position.x * w * 2
-        + t * position.nx * w * 2 + w / 2;
-    y = (1 - t) * position.y * h * 2 +
-        t * position.ny * h * 2 + h / 2;
+    var t = position.t;
+    var p = position.p;
+    var np = (p + 1) % position.wp.length;
 
-    return { 'x': x, 'y': y };
+    var x = position.wp[p][0];
+    var y = position.wp[p][1];
+    var nx = position.wp[np][0];
+    var ny = position.wp[np][1];
+    cx = (1 - t) * x * w * 2
+        + t * nx * w * 2 + w / 2;
+    cy = (1 - t) * y * h * 2 +
+        t * ny * h * 2 + h / 2;
+
+    return { 'x': cx, 'y': cy };
 }
 
 function drawCars(two, positions, range) {

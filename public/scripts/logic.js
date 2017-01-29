@@ -10,17 +10,11 @@ function updateCarPositions(dimensions,positions) {
         if(positions[i].speed != null)
             speed = positions[i].speed;
         positions[i].t += speed;
+        var p = positions[i].p;        
         if(positions[i].t >= 1){
-            positions[i].x = positions[i].nx;
-            positions[i].y = positions[i].ny;
             positions[i].t = 0;
-            if(Math.random() > .5){
-                positions[i].nx += 1;
-                positions[i].nx %= dimensions.x;
-            } else {
-                positions[i].ny += 1;
-                positions[i].ny %= dimensions.y;
-            }
+            var np = (p+1)%positions[i].wp.length;
+            positions[i].p = np;            
         }
     }
     return positions;

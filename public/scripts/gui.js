@@ -98,10 +98,6 @@ function addPacket(src, dest) {
     packets.push(new Packet(packets.length, src, dest, packetDelay, packetLife));
 }
 
-function addCar(pos){
-    
-}
-
 function save() {
     var name = $("#save-name").val();
     if (name.length > 0) {
@@ -146,6 +142,15 @@ function load() {
                 dimensions = data.dimensions;
                 positions = data.cars;
                 packets = data.packets;
+
+                for (var i = 0; i < positions.length; i++) {
+                    for (var j = 0; j < positions[i].wp.length; j++) {
+                        var x = parseInt(positions[i].wp[j][0]);
+                        var y = parseInt(positions[i].wp[j][1]);
+                        positions[i].wp[j] = [x, y];
+                    }
+                }
+
                 resetGraphics(two, dimensions);
                 isPaused = false;
             });
@@ -162,11 +167,11 @@ function loadScene(name) {
         case "static":
             isPaused = true;
             dimensions = { 'x': 2, 'y': 2 };
-            positions = [{ 'x': 0, 'y': 0, 'nx': 0, 'ny': 1, 't': 0, 'speed': 0 },
-            { 'x': 0, 'y': 1, 'nx': 1, 'ny': 1, 't': 0.75, 'speed': 0 },
-            { 'x': 0, 'y': 1, 'nx': 0, 'ny': 0, 't': 0.2, 'speed': 0 },
-            { 'x': 1, 'y': 1, 'nx': 1, 'ny': 0, 't': 0, 'speed': 0 },
-            { 'x': 1, 'y': 0, 'nx': 0, 'ny': 0, 't': 0.5, 'speed': 0 }
+            positions = [{ 'wp': [[0, 0], [0, 1]], 'p': 0, 't': 0, 'speed': 0 },
+            { 'wp': [[0, 0], [0, 1]], 'p': 0, 't': 0.75, 'speed': 0 },
+            { 'wp': [[0, 1], [1, 1]], 'p': 0, 't': 0.2, 'speed': 0 },
+            { 'wp': [[1, 0], [1, 1]], 'p': 0, 't': 0, 'speed': 0 },
+            { 'wp': [[1, 0], [1, 1]], 'p': 0, 't': 0.5, 'speed': 0 }
             ];
             resetGraphics(two, dimensions);
             isPaused = false;
@@ -175,10 +180,14 @@ function loadScene(name) {
             isPaused = true;
             dimensions = { 'x': 3, 'y': 3 };
             positions = [];
-            for (var i = 0; i < 10; i++) {
-                x = Math.round((dimensions.x - 1) * Math.random());
-                y = Math.round((dimensions.y - 1) * Math.random());
-                position = { 'x': x, 'y': y, 'nx': x, 'ny': y, 't': 1, 'speed': 0.01 };
+            for (var i = 0; i < 5; i++) {
+                var wp = [];
+                for (var j = 0; j < 5; j++) {
+                    x = Math.round((dimensions.x - 1) * Math.random());
+                    y = Math.round((dimensions.y - 1) * Math.random());
+                    wp.push([x, y]);
+                }
+                position = { 'wp': wp, p: 0, 't': 0, 'speed': 0.01 };
                 positions.push(position);
             }
             resetGraphics(two, dimensions);
