@@ -11,6 +11,9 @@ var packetLife = 100;
 var dimensions = { 'x': 4, 'y': 4 };
 var addCarMode = false;
 var removeCarMode = false;
+var addWaypointMode = false;
+var removeWaypointMode = false;
+var selectedCar = -1;
 
 function reset() {
     range = 200;
@@ -44,13 +47,12 @@ window.onload = function () {
 
     elem.addEventListener('mouseup', function (evt) {
         var mousePos = getMousePos(elem, evt);
-        //console.log('Mouse position: ' + mousePos.x + ',' + mousePos.y);
+        x = parseInt(mousePos.x * dimensions.x / width);
+        y = parseInt(mousePos.y * dimensions.y / height);
         if (addCarMode) {
-            x = parseInt(mousePos.x * dimensions.x / width);
-            y = parseInt(mousePos.y * dimensions.y / height);
-            //console.log(x+" "+y);
-
             addCar(x, y);
+        } else if (addWaypointMode) {
+            addWaypoint(x, y);
         }
     }, false);
 
@@ -113,13 +115,25 @@ function update() {
             removeCar(clicks[0]);
             clicks = [];
         }
+    } else if (addWaypointMode) {
+        if (clicks.length >= 1) {
+            selectedCar = clicks[0];
+            clicks = [];
+        }
+    } else if (removeWaypointMode) {
+        if (clicks.length >= 1) {
+            selectedCar = clicks[0];
+            clicks = [];
+            removeWaypoint();
+            selectedCar = -1;
+        }
     } else {
         // Instantiate a new packet
         if (clicks.length == 2) {
             addPacket(clicks[0], clicks[1]);
             clicks = [];
         }
-    }
+    } 
 }
 
 function addPacket(src, dest) {
@@ -127,7 +141,17 @@ function addPacket(src, dest) {
 }
 
 function addCar(x, y) {
-    positions.push({ 'wp': [[x, y]], 'p': 0, 't': 0, 'speed': .01 });
+    positions.push({ 'wp': [[x, y]], 'p': 0, 't': 0, 'speed': .05 });
+}
+
+function addWaypoint(x, y) {
+    if (selectedCar != -1)
+        positions[selectedCar].wp.push([x, y]);
+}
+
+function removeWaypoint() {
+    if (selectedCar != -1)
+        positions[selectedCar].wp = [[0,0]];
 }
 
 function removeCar(index) {
@@ -239,9 +263,28 @@ function togglePause() {
 }
 
 function toggleAddCarMode() {
+    removeCarMode = false;
+    addWaypointMode = false;
+    removeWaypointMode = false;
     addCarMode = !addCarMode;
 }
 
 function toggleRemoveCarMode() {
+    addCarMode = false;
+    addWaypointMode = false;
+    removeWaypointMode = false;
     removeCarMode = !removeCarMode;
+}
+function toggleAddWaypointMode() {
+    removeCarMode = false;
+    addCarMode = false;
+    removeWaypointMode = false;
+    addWaypointMode = !addWaypointMode;
+}
+
+function toggleRemoveWaypointMode() {
+    removeCarMode = false;
+    addWaypointMode = false;
+    addCarMode = false;
+    removeWaypointMode = !removeWaypointMode;
 }
