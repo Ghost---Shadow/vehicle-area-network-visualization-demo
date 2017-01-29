@@ -98,23 +98,58 @@ function addPacket(src, dest) {
     packets.push(new Packet(packets.length, src, dest, packetDelay, packetLife));
 }
 
+function addCar(pos){
+    
+}
+
 function save() {
-    var checkpoint = {
-        name: "Dummy Name",
-        cars: positions,
-        packets: packets,
-        dimensions: dimensions
-    };
-    $.ajax
-        ({
-            type: "POST",
-            url: "http://127.0.0.1/save",
-            crossDomain: true,
-            dataType: "json",
-            data: checkpoint
-        }).done(function (data) {
-            console.log("ajax callback response:" + data);
-        });
+    var name = $("#save-name").val();
+    if (name.length > 0) {
+        // Create a new checkpoint
+        var checkpoint = {
+            'name': name,
+            'cars': positions,
+            'packets': packets,
+            'dimensions': dimensions
+        };
+        // Send checkpoint to database
+        $.ajax
+            ({
+                type: "POST",
+                url: "http://127.0.0.1/save",
+                crossDomain: true,
+                dataType: "json",
+                data: checkpoint
+            }).done(function (data) {
+                console.log("ajax callback response:" + data);
+            });
+    }
+}
+
+function load() {
+    var name = $("#save-name").val();
+    if (name.length > 0) {
+        reset();
+        drawGraph(two, positions, G);
+        drawCars(two, positions, range);
+        drawPackets(two, positions, packets);
+        $.ajax
+            ({
+                type: "POST",
+                url: "http://127.0.0.1/load",
+                crossDomain: true,
+                dataType: "json",
+                data: { "name": name }
+            }).done(function (data) {
+                //console.log(data);
+                isPaused = true;
+                dimensions = data.dimensions;
+                positions = data.cars;
+                packets = data.packets;
+                resetGraphics(two, dimensions);
+                isPaused = false;
+            });
+    }
 }
 
 function loadScene(name) {

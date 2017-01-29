@@ -19,10 +19,12 @@
     <div>
         <h1>Simulation <%= email %></h1>
         <a href="/logout" class="btn btn-default btn-sm">Logout</a>
+        <input id="save-name" placeholder = "Save/Load"></input>        
+        <button onclick="save()">Save</button>
+        <button onclick="load()">Load</button>
     </div>
     <div>
         <button onclick="reset()">Reset</button>
-        <button onclick="save()">Save</button>
         <button onclick="togglePause()">Toggle Pause</button>
         <button onclick="loadScene('static')">Static Scene</button>
         <button onclick="loadScene('ten_cars')">Ten Cars</button>
