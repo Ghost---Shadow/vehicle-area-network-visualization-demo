@@ -1,8 +1,26 @@
 var INF = 1e+10;
 var speed = .01;
+var dimensions = null;
+
+// --------------
+var width = 512;
+var height = 512;
+var range = 200;
+// --------------
 
 function Packet(id, src, dest, baseDelay, life) {
     return { "id": id, "src": src, "dest": dest, "life": life, "baseDelay": baseDelay, "delay": baseDelay, "pos": src, "lastPos": src };
+}
+
+function pipe(data) {
+    [positions,dimensions,G,R,packets] = parseJSON(data);
+    if (positions == null || dimensions == null)
+        return [positions, null, null, packets];
+    positions = updateCarPositions(dimensions, positions);
+    G = updateGraph(positions,dimensions);
+    R = updateRoutingInformation(G);
+    packets = updatePackets(R, packets);
+    return [positions, G, R, packets];
 }
 
 function updateCarPositions(dimensions, positions) {
@@ -20,7 +38,7 @@ function updateCarPositions(dimensions, positions) {
     return positions;
 }
 
-function updateGraph(positions) {
+function updateGraph(positions,dimensions) {
     // Update Graph dimensions when necessary
     //if (G.length != positions.length) {
     if (G == null) {
@@ -37,15 +55,37 @@ function updateGraph(positions) {
                 G[i][j] = 0;
                 continue;
             }
-            G[i][j] = G[j][i] = checkAdjacency(positions, i, j);
+            G[i][j] = G[j][i] = checkAdjacency(positions, i, j,dimensions);
         }
     }
     return G;
 }
 
-function checkAdjacency(positions, i, j) {
-    var pos1 = worldToScreenSpace(positions[i]);
-    var pos2 = worldToScreenSpace(positions[j]);
+function worldToScreenSpace(position,dimensions) {
+    // Width and height of each road
+    w = width / (dimensions.x * 2);
+    h = height / (dimensions.y * 2);
+
+    // Interpolate between current and next position
+    var t = position.t;
+    var p = position.p;
+    var np = (p + 1) % position.wp.length;
+
+    var x = position.wp[p][0];
+    var y = position.wp[p][1];
+    var nx = position.wp[np][0];
+    var ny = position.wp[np][1];
+    cx = (1 - t) * x * w * 2
+        + t * nx * w * 2 + w / 2;
+    cy = (1 - t) * y * h * 2 +
+        t * ny * h * 2 + h / 2;
+
+    return { 'x': cx, 'y': cy };
+}
+
+function checkAdjacency(positions, i, j,dimensions) {
+    var pos1 = worldToScreenSpace(positions[i],dimensions);
+    var pos2 = worldToScreenSpace(positions[j],dimensions);
     var xdist = pos1.x - pos2.x;
     var ydist = pos1.y - pos2.y;
     var distance = Math.sqrt(xdist * xdist + ydist * ydist);
@@ -141,3 +181,49 @@ function updatePackets(R, packets) {
     return newPackets;
 }
 
+function parseJSON(data) {
+    positions = data.positions;
+    if (positions == null)
+        return [data.positions,data.dimensions,data.G,data.R,data.packets];
+    if (data.dimensions != null) {
+        dimensions.x = parseInt(data.dimensions.x);
+        dimensions.y = parseInt(data.dimensions.y);
+    }
+
+    for (var i = 0; i < positions.length; i++) {
+        positions[i].p = parseInt(positions[i].p);
+        positions[i].t = parseFloat(positions[i].t);
+        positions[i].speed = parseFloat(positions[i].speed);
+        for (var j = 0; j < positions[i].wp.length; j++) {
+            var x = parseInt(positions[i].wp[j][0]);
+            var y = parseInt(positions[i].wp[j][1]);
+            positions[i].wp[j] = [x, y];
+        }
+    }
+    G = data.G;
+    R = data.R;
+    if (G != null) {
+        for (var i = 0; i < G.length; i++) {
+            for (var j = 0; j < G.length; j++) {
+                G[i][j] = parseInt(G[i][j]);
+                R[i][j] = parseInt(R[i][j]);
+            }
+        }
+    }
+    packets = data.packets;
+    if(packets == null)
+        packets = [];
+    for(var i = 0; i < packets.length; i++){
+        packets[i].id = parseInt(packets[i].id);
+        packets[i].src = parseInt(packets[i].src);
+        packets[i].dest = parseInt(packets[i].dest);
+        packets[i].life = parseInt(packets[i].life);
+        packets[i].baseDelay = parseInt(packets[i].baseDelay);
+        packets[i].delay = parseInt(packets[i].delay);
+        packets[i].pos = parseInt(packets[i].pos);
+        packets[i].lastPos = parseInt(packets[i].lastPos);
+    }
+    return [positions,dimensions,G,R,packets];
+}
+
+exports.pipe = pipe;

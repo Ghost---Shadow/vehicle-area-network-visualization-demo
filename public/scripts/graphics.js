@@ -11,8 +11,19 @@ var ranges = [];
 var packetGraphics = []
 var lines = [];
 var clicks = [];
+var R = null;
+var positions = [];
+var packets = [];
+var G = null;
+var prevG = null;
+
+function Packet(id, src, dest, baseDelay, life) {
+    return { "id": id, "src": src, "dest": dest, "life": life, "baseDelay": baseDelay, "delay": baseDelay, "pos": src, "lastPos": src };
+}
 
 function resetGraphics(two, dimensions) {
+    if(two == null)
+        return;
     two.clear();
     carSize = 20;
     packetSize = 10;
@@ -68,6 +79,8 @@ function drawBackground(two, x, y) {
 }
 
 function worldToScreenSpace(position) {
+    if(position == null)
+        return { 'x': -1, 'y': -1 };
     // Interpolate between current and next position
     var t = position.t;
     var p = position.p;
@@ -133,7 +146,7 @@ function drawCars(two, positions, range) {
     }
 }
 
-function drawGraph(two, positions, G) {
+function drawGraph(two, positions, G) {        
     for (var i = 0; i < lines.length; i++)
         two.remove(lines[i]);
     lines = [];
@@ -173,7 +186,7 @@ function getPacketPosition(positions, packet) {
 }
 
 function drawPackets(two, positions, packets) {
-    if (positions.length == 0)
+    if (positions.length == 0 || packets == null)
         return;
     // Delete excess
     var excess = packetGraphics.length - packets.length;

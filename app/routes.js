@@ -1,6 +1,9 @@
 // app/routes.js
 
 var Checkpoint = require('../app/models/checkpoint');
+var Logic = require('../app/simulation/logic');
+
+console.log(Logic.pipe);
 
 module.exports = function (app, passport) {
 
@@ -44,6 +47,19 @@ module.exports = function (app, passport) {
 			//console.log(check);
 			res.send(check);
 		});
+	});
+
+	app.post('/update', function (req, res) {
+		//console.log(req.body);
+		[positions,G,R,packets] = Logic.pipe(req.body);		
+		var obj = {
+			'positions':positions,
+			'G':G,
+			'R':R,
+			'packets':packets
+		};
+		//console.log(obj);
+		res.send(obj);
 	});
 
 	app.get('/signup', function (req, res) {

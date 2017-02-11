@@ -1,9 +1,5 @@
 var two = null;
 var range = 200;
-var positions = [];
-var packets = [];
-var G = null;
-var prevG = null;
 var isPaused = false;
 var frameDelay = 50;
 var packetDelay = 10;
@@ -14,22 +10,25 @@ var removeCarMode = false;
 var addWaypointMode = false;
 var removeWaypointMode = false;
 var selectedCar = -1;
+var packets = [];
 
 function reset() {
-    range = 200;
+    isPaused = true;
+    clicks = [];
+    R = null;
     positions = [];
     packets = [];
     G = null;
-    prevG = null;
-    frameDelay = 50;
+    dimensions = { 'x': 4, 'y': 4 };
+    range = 200;
     packetDelay = 10;
     packetLife = 100;
-    dimensions = { 'x': 4, 'y': 4 };
     addCarMode = false;
     removeCarMode = false;
     addWaypointMode = false;
     removeWaypointMode = false;
-    selectedCar = -1;
+    resetGraphics(two,dimensions);
+    isPaused = false;
 }
 
 var canvasId = 'main-canvas';
@@ -65,31 +64,10 @@ window.onload = function () {
     setInterval(update, frameDelay);
 }
 
-function hasGraphChanged(G, prevG) {
-    if (G == null)
-        return false;
-    if (prevG == null)
-        return true;
-    if (prevG.length == 0)
-        return true;
-    for (var i = 0; i < G.length; i++) {
-        for (var j = 0; j < G.length; j++) {
-            if (G[i][j] != prevG[i][j])
-                return true;
-        }
-    }
-    return false;
-}
-
 function update() {
     // Logic update
     if (!isPaused) {
-        positions = updateCarPositions(dimensions, positions);
-        G = updateGraph(positions);
-        //if (hasGraphChanged(G, prevG)) {
-        R = updateRoutingInformation(G);
-        packets = updatePackets(R, packets);
-        prevG = G.slice();
+        fetchData();
 
         if (G != null) {
             // UI update
@@ -109,9 +87,11 @@ function update() {
         //}
 
         // Graphics Update
-        drawGraph(two, positions, G);
-        drawCars(two, positions, range);
-        drawPackets(two, positions, packets);
+        if (positions != null && G != null) {
+            drawGraph(two, positions, G);
+            drawCars(two, positions, range);
+            drawPackets(two, positions, packets);
+        }
         two.update();
     }
 
@@ -139,6 +119,77 @@ function update() {
             clicks = [];
         }
     }
+}
+
+function parseJSON(data) {
+    positions = data.positions;
+    if (positions == null) {
+        positions = [];
+        return;
+    }
+    if (data.dimensions != null) {
+        dimensions.x = parseInt(data.dimensions.x);
+        dimensions.y = parseInt(data.dimensions.y);
+    }
+
+    for (var i = 0; i < positions.length; i++) {
+        positions[i].p = parseInt(positions[i].p);
+        positions[i].t = parseFloat(positions[i].t);
+        positions[i].speed = parseFloat(positions[i].speed);
+        for (var j = 0; j < positions[i].wp.length; j++) {
+            var x = parseInt(positions[i].wp[j][0]);
+            var y = parseInt(positions[i].wp[j][1]);
+            positions[i].wp[j] = [x, y];
+        }
+    }
+    G = data.G;
+    R = data.R;
+    if (G != null) {
+        for (var i = 0; i < G.length; i++) {
+            for (var j = 0; j < G.length; j++) {
+                G[i][j] = parseInt(G[i][j]);
+                R[i][j] = parseInt(R[i][j]);
+            }
+        }
+    }
+    packets = data.packets;
+    if (packets == null)
+        packets = [];
+    for (var i = 0; i < packets.length; i++) {
+        packets[i].id = parseInt(packets[i].id);
+        packets[i].src = parseInt(packets[i].src);
+        packets[i].dest = parseInt(packets[i].dest);
+        packets[i].life = parseInt(packets[i].life);
+        packets[i].baseDelay = parseInt(packets[i].baseDelay);
+        packets[i].delay = parseInt(packets[i].delay);
+        packets[i].pos = parseInt(packets[i].pos);
+        packets[i].lastPos = parseInt(packets[i].lastPos);
+    }
+    return [positions, dimensions, G, R, packets];
+}
+
+function fetchData() {
+    if (packets == null)
+        packets = [];
+    var dump = {
+        'positions': positions,
+        'dimensions': dimensions,
+        'packets': packets
+    };
+    //console.log(dump);
+    $.ajax
+        ({
+            type: "POST",
+            url: "http://127.0.0.1/update",
+            crossDomain: true,
+            dataType: "json",
+            data: dump
+        }).done(function (data) {
+            wasPaused = isPaused;
+            isPaused = true;
+            parseJSON(data);
+            isPaused = wasPaused;
+        });
 }
 
 function addPacket(src, dest) {
@@ -193,9 +244,11 @@ function load() {
     var name = $("#save-name").val();
     if (name.length > 0) {
         reset();
-        drawGraph(two, positions, G);
-        drawCars(two, positions, range);
-        drawPackets(two, positions, packets);
+        if (positions != null && G != null) {
+            drawGraph(two, positions, G);
+            drawCars(two, positions, range);
+            drawPackets(two, positions, packets);
+        }
         $.ajax
             ({
                 type: "POST",
@@ -204,20 +257,9 @@ function load() {
                 dataType: "json",
                 data: { "name": name }
             }).done(function (data) {
-                //console.log(data);
                 isPaused = true;
-                dimensions = data.dimensions;
-                positions = data.cars;
-                packets = data.packets;
-
-                for (var i = 0; i < positions.length; i++) {
-                    for (var j = 0; j < positions[i].wp.length; j++) {
-                        var x = parseInt(positions[i].wp[j][0]);
-                        var y = parseInt(positions[i].wp[j][1]);
-                        positions[i].wp[j] = [x, y];
-                    }
-                }
-
+                data.positions = data.cars;
+                parseJSON(data);
                 resetGraphics(two, dimensions);
                 isPaused = false;
             });
