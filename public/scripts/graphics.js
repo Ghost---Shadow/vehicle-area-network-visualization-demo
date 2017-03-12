@@ -25,6 +25,9 @@ function resetGraphics(two, dimensions) {
     if(two == null)
         return;
     two.clear();
+    for(var i = 0; i < cars.length; i++)
+        document.getElementById("cars"+i).remove();
+    
     carSize = 20;
     packetSize = 10;
     shape = {};
@@ -127,6 +130,7 @@ function drawCars(two, positions, range) {
         rect.noStroke();
 
         rect.id = "cars" + cars.length;
+        rect.class = "car";
         two.update();
         $(rect._renderer.elem).click(clickCar);
         cars.push(rect);

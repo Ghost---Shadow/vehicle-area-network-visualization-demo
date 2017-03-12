@@ -27,13 +27,14 @@ function reset() {
     removeCarMode = false;
     addWaypointMode = false;
     removeWaypointMode = false;
-    resetGraphics(two,dimensions);
+    resetGraphics(two, dimensions);
     isPaused = false;
 }
 
 var canvasId = 'main-canvas';
 var graphDivId = '#graph-holder';
 var routesDivId = '#routes-holder';
+var warningDivID = '#warning';
 
 function getMousePos(canvas, evt) {
     var rect = canvas.getBoundingClientRect();
@@ -71,17 +72,27 @@ function update() {
 
         if (G != null) {
             // UI update
-            var s = "";
+            var s = "<table class='table table-bordered'>";
             for (var i = 0; i < G.length; i++) {
-                s += G[i] + "<br />";
+                s += "<tr>";
+                for (var j = 0; j < G.length; j++) {
+                    s += "<td>" + G[i][j] + "</td>";
+                }
+                s += "</tr>\n";
             }
+            s += "</table>"
             $(graphDivId).html(s);
         }
         if (R != null) {
-            var s = "";
+            var s = "<table class='table table-bordered'>";
             for (var i = 0; i < G.length; i++) {
-                s += R[i] + "<br />";
+                s += "<tr>";
+                for (var j = 0; j < G.length; j++) {
+                    s += "<td>" + R[i][j] + "</td>";
+                }
+                s += "</tr>\n";
             }
+            s += "</table>"
             $(routesDivId).html(s);
         }
         //}
@@ -115,7 +126,13 @@ function update() {
     } else {
         // Instantiate a new packet
         if (clicks.length == 2) {
-            addPacket(clicks[0], clicks[1]);
+            if (isPaused) {
+                addPacket(clicks[0], clicks[1]);
+                $(warningDivID).hide();
+            } else {
+                $(warningDivID).show();
+                $(warningDivID).text("Simulation must be paused before adding packets");
+            }
             clicks = [];
         }
     }

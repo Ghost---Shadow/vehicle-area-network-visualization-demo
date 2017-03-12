@@ -7,37 +7,67 @@
     <script type="text/javascript" src="./scripts/graphics.js"></script>
     <script type="text/javascript" src="./scripts/gui.js"></script>
     <script type="text/javascript" src="./scripts/testing.js"></script>
-    <link rel="stylesheet" href="./css/style.css"></link>
+    
 
     <link rel="stylesheet" href="bootstrap/css/bootstrap.css">
     <link rel="stylesheet" href="bootstrap/css/bootstrap-theme.min.css" >
     <script src="bootstrap/js/bootstrap.js" ></script>
+    <link rel="stylesheet" href="./css/style.css"></link>
 </head>
 
-<body>
-    <div>
-        <h1>Simulation <%= email %></h1>
-        <a href="/logout" class="btn btn-default btn-sm">Logout</a>
-        <input id="save-name" placeholder = "Save/Load"></input>        
-        <button onclick="save()">Save</button>
-        <button onclick="load()">Load</button>
+<body style="background:#ff957f">
+    <div class="container" style="background:#ffffff">
+        
+        <div class="jumbotron">
+            <h1>Simulation</h1>
+            <a href="/logout" style="float:right;" class="btn btn-default btn-large">Logout</a>
+        </div>    
+
+        <div class="row spacer">
+            <div class = "col-md-6">
+                <input id="save-name" placeholder = "Save/Load"></input>        
+                <button class="btn btn-default btn-medium" onclick="save()">Save</button>
+                <button class="btn btn-default btn-medium" onclick="load()">Load</button>      
+            </div>       
+            <div class = "col-md-6 pull-right">
+                <button class="btn btn-default btn-medium" onclick="reset()">Reset</button>
+                <label><input type="checkbox" value="" onclick="togglePause()">Toggle Pause</label>
+                <button class="btn btn-default btn-medium" onclick="loadScene('static')">Static Scene</button>
+                <button class="btn btn-default btn-medium" onclick="loadScene('ten_cars')">Ten Cars</button>
+            </div>
+        </div>
+        <div class = "row spacer">
+            <div class = "col-md-3 ">
+                <div class="checkbox">
+                    <label><input type="checkbox" value="" onclick="toggleAddCarMode()">Toggle Add Car Mode</label>
+                </div>
+                <div class="checkbox">
+                    <label><input type="checkbox" value="" onclick="toggleRemoveCarMode()">Toggle Remove Car Mode</label>
+                </div>
+                <div class="checkbox">
+                    <label><input type="checkbox" value="" onclick="toggleAddWaypointMode()">Toggle Add Waypoint Mode</label>
+                </div>
+                <div class="checkbox">
+                    <label><input type="checkbox" value="" onclick="toggleRemoveWaypointMode()">Toggle Remove Waypoint Mode</label>
+                </div>   
+                <div class="alert alert-warning" id="warning" style="display: none;">
+                    
+                </div>           
+            </div>
+            <div class = "col-md-6">
+                <div id="main-canvas"></div>
+            </div>
+            <div class = "col-md-3">
+                Adjacency Matrix
+                <div id='graph-holder' class="table-responsive">Loading</div>
+                Routing Table
+                <div id='routes-holder' class="table-responsive">Loading</div>
+            </div>
+        </div>
+        
+        
+        
     </div>
-    <div>
-        <button onclick="reset()">Reset</button>
-        <button onclick="togglePause()">Toggle Pause</button>
-        <button onclick="loadScene('static')">Static Scene</button>
-        <button onclick="loadScene('ten_cars')">Ten Cars</button>
-    </div>
-    <div>
-        <button onclick="toggleAddCarMode()">Toggle Add Car Mode</button>
-        <button onclick="toggleRemoveCarMode()">Toggle Remove Car Mode</button>
-        </br>
-        <button onclick="toggleAddWaypointMode()">Toggle Add Waypoint Mode</button>
-        <button onclick="toggleRemoveWaypointMode()">Toggle Remove Waypoint Mode</button>
-    </div>
-<div id="main-canvas"></div>
-<div id='graph-holder'>Loading</div>
-<div id='routes-holder'>Loading</div>
 </body>
 
 </html>
